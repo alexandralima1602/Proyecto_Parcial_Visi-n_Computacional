@@ -1,1 +1,1 @@
-# Proyecto_Parcial_Visi-n_Computacional
+# Proyecto_Parcial_Vision_Computacional
