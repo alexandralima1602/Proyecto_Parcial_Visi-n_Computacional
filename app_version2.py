@@ -37,7 +37,24 @@ DRIVE_FOLDER_IDS = {
 
 @app.route("/")
 def main():
-    return render_template("index.html", categories=DRIVE_FOLDER_IDS.keys())
+    return render_template("index.html")
+
+@app.route('/instructions')
+def instructions():
+    return render_template('instructions.html')
+
+@app.route('/gallery')
+def gallery():
+    # Obtener la lista de archivos desde Google Drive
+    file_lists = []
+    for category, folder_id in DRIVE_FOLDER_IDS.items():
+        results = service.files().list(
+            q=f"'{folder_id}' in parents",
+            spaces='drive',
+            fields="files(id, name)").execute()
+        files = results.get('files', [])
+        file_lists.append((category, files))
+    return render_template('gallery.html', file_lists=file_lists)
 
 @app.route('/upload', methods=['POST'])
 def upload():
@@ -70,8 +87,8 @@ def upload():
 
     return redirect("/", code=302)
 
-@app.route('/gallery/<category>', methods=['GET'])
-def gallery(category):
+@app.route('/uploads/<category>', methods=['GET'])
+def list_files(category):
     # Obtener archivos de la carpeta de Google Drive correspondiente a la categoría
     folder_id = DRIVE_FOLDER_IDS.get(category)
     if not folder_id:
@@ -83,10 +100,10 @@ def gallery(category):
         fields="files(id, name)").execute()
     files = results.get('files', [])
 
-    return render_template('gallery.html', files=files, category=category)
+    return render_template('files_list.html', files=files, category=category)
 
-@app.route('/preview/<category>/<file_id>', methods=['GET'])
-def preview(category, file_id):
+@app.route('/uploads/<category>/<file_id>', methods=['GET'])
+def get_file(category, file_id):
     # Descargar el archivo desde Google Drive
     try:
         request = service.files().get_media(fileId=file_id)
@@ -98,7 +115,7 @@ def preview(category, file_id):
             status, done = downloader.next_chunk()
 
         fh.close()
-        return render_template('preview.html', file_path=fh.name)
+        return send_file(fh.name, mimetype='image/png')
     except Exception as e:
         print(e)
         return "Error retrieving file", 500
@@ -129,4 +146,3 @@ def download_all():
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-
