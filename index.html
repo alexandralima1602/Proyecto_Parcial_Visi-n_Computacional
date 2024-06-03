@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sitio Web de Dibujos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container my-5">
+        <h1 class="text-center">Sitio Web de Dibujos</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <canvas id="drawingCanvas" width="500" height="500" style="border:1px solid #000000;"></canvas>
+            </div>
+        </div>
+        <div class="row justify-content-center mt-3">
+            <div class="col-md-8">
+                <form id="drawingForm" action="{{ url_for('upload') }}" method="post">
+                    <div class="form-group">
+                        <label for="category">Categoría:</label>
+                        <select class="form-control" id="category" name="category">
+                            <option value="Animales">Animales</option>
+                            
